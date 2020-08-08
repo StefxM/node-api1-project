@@ -1,7 +1,7 @@
 let users = [
 	{ id: "1", name: "Izuku Midoriya", bio: "Also known as Deku and All Mights sucessor." },
 	{ id: "2", name: "Shoto Todoroki", bio: "Todoroki, son of The new number one hero Endeavor" },
-	{ id: "3", name: "All Might", bio: "Toshinori," },
+	{ id: "3", name: "All Might", bio: "Toshinori, The number one hero ALWAYS!" },
 ]
 
 function getUsers() {
