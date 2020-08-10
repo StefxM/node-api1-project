@@ -1,6 +1,7 @@
 const express = require("express")
 
-const db = require("./database")
+const db = require("./database");
+const { updateUser } = require("./database");
 
 const server = express();
 
@@ -24,7 +25,7 @@ server.post("/api/users", (req, res) => {
 //all good
 server.get("/api/users", (req, res) => {
     const users = db.getUsers()
-   if (user) {
+   if (users) {
        res.json(users)
     }else {
         res.status(500).json({
@@ -32,7 +33,7 @@ server.get("/api/users", (req, res) => {
         })
     }
 })
-
+//all good
 server.get("/api/users/:id", (req, res) => {
     const id = req.params.id
     const user = db.getUserById(id)
@@ -42,7 +43,7 @@ server.get("/api/users/:id", (req, res) => {
         res.status(404).json({message: "The user with the specified ID does not exist"})
     }
 })
-
+//all good
 server.delete("/api/users/:id", (req, res) => {
     const user = db.getUserById(req.params.id)
     if (user){
@@ -55,15 +56,18 @@ server.delete("/api/users/:id", (req, res) => {
     }
 })
 
-
+//cant figure out how to test this
 server.put("/api/users/:id", (req,res) => {
-    if (!req.body.name || !req.body.bio){
-        return res.status(400).json({
-            message: "Please provide name and bio for the user"
-        })
-    }
+    
 
-    users.update(req.params.id, req.body)
+    db.getUserById(req.params.id)
+    .then(() => {
+        if (!req.body.name || !req.body.bio){
+            return res.status(400).json({
+                message: "Please provide name and bio for the user"
+            })
+        } else {
+    db.updateUser(req.params.id, req.body)
     .then((user) => {
         if (user) {
             res.status(200).json(user)
@@ -79,6 +83,12 @@ server.put("/api/users/:id", (req,res) => {
             message: "the user information could not be modified"
         })
     })
+        }
+        
+    })
+    .catch((error) => console.log(error))
+
+    
 })
 
 
@@ -93,3 +103,42 @@ server.put("/api/users/:id", (req,res) => {
 server.listen(8080, () => {
     console.log("server started on port 8080")
 })
+
+/*
+PUT SOLUTION !!
+
+server.put('/api/users/:id', (req, res) =>
+{
+    database.findById(req.params.id)
+    .then(user =>
+    {
+        if(!user)
+        {
+            res.status(404).json({message: 'The user with the specified ID does not exist'});
+        }
+        else
+        {
+            const updateUser = req.body;
+            if(!updateUser.name || !updateUser.bio)
+            {
+                res.status(400).json({errorMessage: 'Please provide a name and bio for the user'});
+            }
+            else
+            {
+                database.update(user.id, updateUser)
+                .then(updatedUser =>
+                {
+                    res.status(200).json(updateUser);
+                })
+                .catch(error =>
+                {
+                    res.status(500).json({errorMessage: 'the user information could not be modified'});
+                })
+            }
+        }
+    })
+    .catch(error =>
+    {
+        res.status(500).json({errorMessage: 'The users information could not be retrieved'});
+    })
+})*/
