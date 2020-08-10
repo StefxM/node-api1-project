@@ -1,7 +1,7 @@
 const express = require("express")
 
 const db = require("./database");
-const { updateUser } = require("./database");
+
 
 const server = express();
 
@@ -12,14 +12,26 @@ server.get("/", (req, res) => {
 })
 //work on this
 server.post("/api/users", (req, res) => {
+    const user = {name:req.body.name, bio:req.body.bio}
+    
+
     if (!req.body.name || !req.body.bio) {
         return res.status(400).json({
             message: "Please provide name and bio for the user"
         })
     } else{
-        res.status(500).json({
-            message: "The user information could not be retrieved"
+        const createdUser = db.createUser({
+            name: req.body.name,
+            bio: req.body.bio
         })
+        if (createdUser) {
+            res.status(200).json(createdUser)
+        } else {
+            res.status(500).json({
+                message: "cant create"
+            })
+        }
+       
     }
 })
 //all good
@@ -56,12 +68,69 @@ server.delete("/api/users/:id", (req, res) => {
     }
 })
 
-//cant figure out how to test this
+
+server.put('/api/users/:id', (req, res) =>{
+ const user = db.getUserById(req.params.id)
+ 
+    if (user){
+        if (!req.body.name || !req.body.bio) {
+            res.status(400).json({
+                message: "Please provide name and bio for the user."
+            })
+        } else {
+            const updatedUser = db.updateUser(req.params.id, req.body)
+            if (updatedUser) {
+                res.status(200).json(updatedUser)
+            } else {
+                res.status(500).json({
+                    message:"The user information could not be modified"
+                })
+            }
+        }
+    } 
+    else {
+        res.status(404).json({
+            message: "The user with the specified ID does not exist."
+        })
+    }
+
+
+})
+/*cant figure out how to test this
 server.put("/api/users/:id", (req,res) => {
     
-
     db.getUserById(req.params.id)
-    .then(() => {
+    .then(user => {
+        if (!user){
+            res.status(404).json({
+                message: "User does not exist"
+            })
+        } else {
+    db.updateUser(req.params.id, req.params.body)
+    .then((user) => {
+        if (!req.body.name || !req.body.bio) {
+            res.status(200).json(user)
+        } else {
+            res.status(401).json({
+                message: "The user with the specified id does not exist"
+            })
+        }
+    })
+    .catch((error) =>{
+        console.log(error)
+        res.status(500).json({
+            message: "the user information could not be modified"
+        })
+    })
+}
+        
+    })
+    .catch((error) => console.log(error))
+
+    
+})
+ db.getUserById(req.params.id)
+    .then(user => {
         if (!req.body.name || !req.body.bio){
             return res.status(400).json({
                 message: "Please provide name and bio for the user"
@@ -88,9 +157,7 @@ server.put("/api/users/:id", (req,res) => {
     })
     .catch((error) => console.log(error))
 
-    
-})
-
+     */
 
 
 
